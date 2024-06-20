@@ -1,0 +1,39 @@
+CREATE TABLE Livros (
+    ISBN VARCHAR(13) PRIMARY KEY,
+    Titulo VARCHAR(255),
+    Ano_Publicacao INT,
+    CPF_Autor VARCHAR(11),
+    FOREIGN KEY (CPF_Autor) REFERENCES Autores(CPF) ON DELETE CASCADE
+);
+
+CREATE TABLE Emprestimos (
+    ID_Emprestimo SERIAL PRIMARY KEY,
+    ISBN_Livro VARCHAR(13),
+    Data_Emprestimo DATE,
+    Data_Devolucao DATE,
+    FOREIGN KEY (ISBN_Livro) REFERENCES Livros(ISBN) ON DELETE CASCADE
+);
+
+
+
+SELECT * FROM Autores;
+SELECT * FROM Livros;
+SELECT * FROM Emprestimos;
+
+SELECT * FROM view_todos_dados;
+
+
+CREATE OR REPLACE VIEW view_todos_dados AS
+SELECT
+    livros.titulo AS livro_titulo,
+    livros.isbn AS isbn,
+    autores.nome AS autor_nome,
+    autores.cpf AS cpf,
+    emprestimos.data_emprestimo,
+    emprestimos.data_devolucao
+FROM
+    emprestimos
+JOIN
+    livros ON emprestimos.isbn_livro = livros.isbn
+JOIN
+    autores ON livros.cpf_autor = autores.cpf;
