@@ -1,0 +1,337 @@
+package main;
+
+import java.sql.ResultSet;
+import java.util.Scanner;
+
+import Db.Conexao;
+
+public class Principal {
+
+    public static void main(String[] args) {
+        Conexao net = new Conexao();
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.println("Escolha uma opção:");
+            System.out.println("1 - Inserir");
+            System.out.println("2 - Excluir");
+            System.out.println("3 - Consultar");
+            System.out.println("4 - Alterar");
+            System.out.println("5 - Ver todos os dados (usando VIEW)");
+            System.out.println("6 - Sair");
+
+            int escolha = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (escolha) {
+                case 1:
+                    inserirDados(net, scanner);
+                    break;
+                case 2:
+                    excluirDados(net, scanner);
+                    break;
+                case 3:
+                    consultarDados(net);
+                    break;
+                case 4:
+                    alterarDados(net, scanner);
+                    break;
+                case 5:
+                    verDadosUsandoView(net);
+                    break;
+                case 6:
+                    net.fecharConexao();
+                    scanner.close();
+                    System.exit(0);
+                    break;
+                default:
+                    System.out.println("Opção inválida.");
+            }
+        }
+    }
+    
+ 
+      
+        private static void excluirDados(Conexao net, Scanner scanner) {
+            System.out.println("Escolha a tabela para excluir dados:");
+            System.out.println("1 - Autores");
+            System.out.println("2 - Livros");
+            System.out.println("3 - Emprestimos");
+
+            int escolha = scanner.nextInt();
+            scanner.nextLine();
+
+            System.out.print("Digite o ID do registro a ser excluído: ");
+            String id = scanner.nextLine();
+
+            String tabela = "";
+            String idColuna = "";
+
+            switch (escolha) {
+                case 1:
+                    tabela = "Autores";
+                    idColuna = "CPF";
+                    break;
+                case 2:
+                    tabela = "Livros";
+                    idColuna = "ISBN";
+                    break;
+                case 3:
+                    tabela = "Emprestimos";
+                    idColuna = "ID_Emprestimo";
+                    break;
+                default:
+                    System.out.println("Opção inválida.");
+                    return;
+            }
+
+            String sql = "DELETE FROM " + tabela + " WHERE " + idColuna + " = '" + id + "'";
+            int res = net.executarUpdate(sql);
+            if (res > 0) {
+                System.out.println("Registro excluído com sucesso!");
+            } else {
+                System.out.println("Erro ao excluir o registro.");
+            }
+        }
+
+        
+        
+        private static void inserirDados(Conexao net, Scanner scanner) {
+            System.out.println("Escolha a tabela para inserir dados:");
+            System.out.println("1 - Autores");
+            System.out.println("2 - Livros");
+            System.out.println("3 - Emprestimos");
+
+            int escolha = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (escolha) {
+                case 1:
+                    inserirAutor(net, scanner);
+                    break;
+                case 2:
+                    inserirLivro(net, scanner);
+                    break;
+                case 3:
+                    inserirEmprestimo(net, scanner);
+                    break;
+                default:
+                    System.out.println("Opção inválida.");
+            }
+        }
+
+      
+   
+     
+        private static void inserirAutor(Conexao net, Scanner scanner) {
+            System.out.print("CPF: ");
+            String cpf = scanner.nextLine();
+            System.out.print("Nome: ");
+            String nome = scanner.nextLine();
+            System.out.print("Data de Nascimento (YYYY-MM-DD): ");
+            String dataNascimento = scanner.nextLine();
+            System.out.print("Nacionalidade: ");
+            String nacionalidade = scanner.nextLine();
+
+            String sql = "INSERT INTO Autores (CPF, Nome, Data_Nascimento, Nacionalidade) " +
+                         "VALUES ('" + cpf + "', '" + nome + "', '" + dataNascimento + "', '" + nacionalidade + "')";
+            int res = net.executarUpdate(sql);
+            if (res > 0) {
+                System.out.println("Cadastro de autor feito com sucesso!");
+            } else {
+                System.out.println("Erro durante o cadastro do autor.");
+            }
+        }
+
+        private static void inserirLivro(Conexao net, Scanner scanner) {
+            System.out.print("Titulo: ");
+            String titulo = scanner.nextLine();
+            System.out.print("ISBN: ");
+            String isbn = scanner.nextLine();
+            System.out.print("Ano de Publicacao: ");
+            int anoPublicacao = scanner.nextInt();
+            scanner.nextLine();
+            System.out.print("CPF do Autor: ");
+            String cpfAutor = scanner.nextLine();
+
+            String sql = "INSERT INTO Livros (Titulo, ISBN, Ano_Publicacao, CPF_Autor) " +
+                         "VALUES ('" + titulo + "', '" + isbn + "', " + anoPublicacao + ", '" + cpfAutor + "')";
+            int res = net.executarUpdate(sql);
+            if (res > 0) {
+                System.out.println("Cadastro de livro feito com sucesso!");
+            } else {
+                System.out.println("Erro durante o cadastro do livro.");
+            }
+        }
+
+        private static void inserirEmprestimo(Conexao net, Scanner scanner) {
+            System.out.print("ISBN do Livro: ");
+            String isbnLivro = scanner.nextLine();
+            System.out.print("Data de Emprestimo (YYYY-MM-DD): ");
+            String dataEmprestimo = scanner.nextLine();
+            System.out.print("Data de Devolucao (YYYY-MM-DD): ");
+            String dataDevolucao = scanner.nextLine();
+
+            String sql = "INSERT INTO Emprestimos (ISBN_Livro, Data_Emprestimo, Data_Devolucao) " +
+                         "VALUES ('" + isbnLivro + "', '" + dataEmprestimo + "', '" + dataDevolucao + "')";
+            int res = net.executarUpdate(sql);
+            if (res > 0) {
+                System.out.println("Cadastro de emprestimo feito com sucesso!");
+            } else {
+                System.out.println("Erro durante o cadastro do emprestimo.");
+            }
+        }
+        
+
+
+        
+        private static void alterarDados(Conexao net, Scanner scanner) {
+            System.out.println("Escolha a tabela para alterar dados:");
+            System.out.println("1 - Autores");
+            System.out.println("2 - Livros");
+            System.out.println("3 - Emprestimos");
+
+            int escolha = scanner.nextInt();
+            scanner.nextLine();
+
+            System.out.print("Digite o ID do registro a ser alterado: ");
+            String id = scanner.nextLine();
+
+            switch (escolha) {
+                case 1:
+                    alterarAutor(net, scanner, id);
+                    break;
+                case 2:
+                    alterarLivro(net, scanner, id);
+                    break;
+                case 3:
+                    alterarEmprestimo(net, scanner, id);
+                    break;
+                default:
+                    System.out.println("Opção inválida.");
+            }
+        }
+
+        private static void alterarAutor(Conexao net, Scanner scanner, String cpf) {
+            System.out.print("Novo Nome: ");
+            String nome = scanner.nextLine();
+            System.out.print("Nova Data de Nascimento (YYYY-MM-DD): ");
+            String dataNascimento = scanner.nextLine();
+            System.out.print("Nova Nacionalidade: ");
+            String nacionalidade = scanner.nextLine();
+
+            String sql = "UPDATE Autores SET Nome = '" + nome + "', Data_Nascimento = '" + dataNascimento + "', Nacionalidade = '" + nacionalidade + "' WHERE CPF = '" + cpf + "'";
+            int res = net.executarUpdate(sql);
+            if (res > 0) {
+                System.out.println("Alteração de autor feita com sucesso!");
+            } else {
+                System.out.println("Erro durante a alteração do autor.");
+            }
+        }
+
+        private static void alterarLivro(Conexao net, Scanner scanner, String isbn) {
+            System.out.print("Novo Titulo: ");
+            String titulo = scanner.nextLine();
+            System.out.print("Novo Ano de Publicacao: ");
+            int anoPublicacao = scanner.nextInt();
+            scanner.nextLine();
+            System.out.print("Novo CPF do Autor: ");
+            String cpfAutor = scanner.nextLine();
+
+            String sql = "UPDATE Livros SET Titulo = '" + titulo + "', Ano_Publicacao = " + anoPublicacao + ", CPF_Autor = '" + cpfAutor + "' WHERE ISBN = '" + isbn + "'";
+            int res = net.executarUpdate(sql);
+            if (res > 0) {
+                System.out.println("Alteração de livro feita com sucesso!");
+            } else {
+                System.out.println("Erro durante a alteração do livro.");
+            }
+        }
+
+        private static void alterarEmprestimo(Conexao net, Scanner scanner, String id) {
+            System.out.print("Novo ISBN do Livro: ");
+            String isbnLivro = scanner.nextLine();
+            System.out.print("Nova Data de Emprestimo (YYYY-MM-DD): ");
+            String dataEmprestimo = scanner.nextLine();
+            System.out.print("Nova Data de Devolucao (YYYY-MM-DD): ");
+            String dataDevolucao = scanner.nextLine();
+
+            String sql = "UPDATE Emprestimos SET ISBN_Livro = '" + isbnLivro + "', Data_Emprestimo = '" + dataEmprestimo + "', Data_Devolucao = '" + dataDevolucao + "' WHERE ID_Emprestimo = " + id;
+            int res = net.executarUpdate(sql);
+            if (res > 0) {
+                System.out.println("Alteração de emprestimo feita com sucesso!");
+            } else {
+                System.out.println("Erro durante a alteração do emprestimo.");
+            }
+        }
+        
+        
+        private static void consultarDados(Conexao net) {
+            String sql = "SELECT Livros.Titulo AS livro_titulo, Autores.Nome AS autor_nome, " +
+                         "COUNT(Emprestimos.ISBN_Livro) AS emprestimos_count, " +
+                         "MAX(Emprestimos.Data_Devolucao) AS ultima_devolucao " +
+                         "FROM Livros " +
+                         "JOIN Autores ON Livros.CPF_Autor = Autores.CPF " +
+                         "LEFT JOIN Emprestimos ON Livros.ISBN = Emprestimos.ISBN_Livro " +
+                         "GROUP BY Livros.Titulo, Autores.Nome, Livros.ISBN";
+
+            ResultSet rs = net.executarQuery(sql);
+
+            try {
+                if (!rs.isBeforeFirst()) { 
+                    System.out.println("Nenhum livro encontrado.");
+                    return;
+                }
+
+                System.out.println("Lista de Livros:");
+                System.out.println("------------------------------------------------------------");
+                System.out.printf("%-30s %-20s %-15s%n", "Título do Livro", "Nome do Autor", "Emprestado");
+                System.out.println("------------------------------------------------------------");
+
+                while (rs.next()) {
+                    String livroTitulo = rs.getString("livro_titulo");
+                    String autorNome = rs.getString("autor_nome");
+                    int emprestimosCount = rs.getInt("emprestimos_count");
+
+                    System.out.printf("%-30s %-20s %-15s%n", livroTitulo, autorNome, (emprestimosCount > 0 ? "Sim" : "Não"));
+                }
+
+                System.out.println("------------------------------------------------------------");
+                rs.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        
+        private static void verDadosUsandoView(Conexao net) {            
+            String sql = "SELECT livro_titulo, isbn, autor_nome, cpf, Data_Emprestimo, Data_Devolucao FROM view_todos_dados";
+            
+            ResultSet rs = net.executarQuery(sql);
+
+            try {
+                System.out.println("Lista de dados");
+                System.out.println("---------------------------------------------------------------------------------------------------");
+                System.out.printf("%-30s %-15s %-20s %-15s %-15s %-15s%n", "Título do Livro", "ISBN", "Nome do Autor", "CPF", "Empréstimo", "Devolução");
+                System.out.println("---------------------------------------------------------------------------------------------------");
+
+                while (rs.next()) {
+                    String livroTitulo = rs.getString("livro_titulo");
+                    String isbn = rs.getString("isbn");
+                    String autorNome = rs.getString("autor_nome");  
+                    String cpf = rs.getString("cpf");                 
+                    String dataEmprestimo = rs.getString("Data_Emprestimo");
+                    String dataDevolucao = rs.getString("Data_Devolucao");
+                    System.out.printf("%-30s %-15s %-20s %-15s %-15s %-15s%n", livroTitulo, isbn, autorNome, cpf, dataEmprestimo, dataDevolucao);
+                }
+                
+                System.out.println("---------------------------------------------------------------------------------------------------");
+                rs.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+
+  
