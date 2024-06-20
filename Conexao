@@ -1,0 +1,64 @@
+package Db;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+public class Conexao {
+    private String url;
+    private String usuario;
+    private String senha;
+    private Connection net;
+    
+    public Conexao() {
+        url = "jdbc:postgresql://localhost:5432/projeto_final";
+        usuario = "postgres";
+        senha = "1512";       
+        try {
+            Class.forName("org.postgresql.Driver");
+            net = DriverManager.getConnection(url, usuario, senha);
+            System.out.println("Conexão Realizada!!");    
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Falha na Conexão!!");
+        }
+    }
+    
+    //construtor da classe, os construtores são os responsáveis 
+    //por criar o objeto em memória, ou seja, instanciar a classe que foi definida.//
+    
+    
+    public int executarUpdate(String sql) {
+        try {
+            Statement stm = net.createStatement();
+            int res = stm.executeUpdate(sql);
+            stm.close();
+            return res;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+    
+    public ResultSet executarQuery(String sql) {
+        try {
+            Statement stm = net.createStatement();
+            return stm.executeQuery(sql);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    public void fecharConexao() {
+        try {
+            if (net != null && !net.isClosed()) {
+                net.close();
+                System.out.println("Conexão fechada.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
